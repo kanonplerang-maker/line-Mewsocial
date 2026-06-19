@@ -21,8 +21,12 @@ export async function POST(req: NextRequest) {
     body = await req.text();
     const signature = req.headers.get("x-line-signature") ?? "";
 
+    const secretSet = !!process.env.LINE_CHANNEL_SECRET;
+    const sigPresent = !!signature;
+    console.log(`[webhook] secret_set=${secretSet} sig_present=${sigPresent} sig=${signature.slice(0, 10)}...`);
+
     if (!verifySignature(body, signature)) {
-      console.warn("[webhook] Invalid signature");
+      console.warn("[webhook] Invalid signature — check LINE_CHANNEL_SECRET in Vercel env vars");
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
